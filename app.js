@@ -1,5 +1,8 @@
+// Express Framework
 var express = require('express');
+// Utilities for working with file and dir paths
 var path = require('path');
+
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
@@ -7,19 +10,27 @@ var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
+var cors = require('cors'); // instered Mon 20/5
 const authApi = require('./middleware/authApi');
 
 var app = express();
+
+// database is called recipes
+var mongoose = require('mongoose');
+var url = 'mongodb://localhost/recipes';
+//var url = process.env.MONGOLAB_URI || 'mongodb://localhost/recipes'; 
+mongoose.connect(url);
+const { connection: db } = mongoose;
 
 var jwt = require('jsonwebtoken');
 var token = jwt.sign({ email: 'shouhei.yamauchi@live.com' }, 'secretcode');
 console.log(token)
 
-var mongoose = require('mongoose');
+
 
 // database is called recipes
-mongoose.connect(process.env.RECIPES_DB);
-const { connection: db } = mongoose;
+// mongoose.connect(process.env.RECIPES_DB);
+// const { connection: db } = mongoose;
 
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
@@ -32,6 +43,7 @@ app.set('view engine', 'ejs');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(cors()); // instered Mon 20/5
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -47,6 +59,7 @@ app.use('/users', users);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
+  console.log(req, res);
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
